@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Intro · Grid · Telegram & Safew</title>
+    <style>
+        /* ── reset & base ── */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            overflow: hidden;
+            background: #0b0b1a;
+        }
+
+        /* ── all screens overlay each other ── */
+        .screen {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+            visibility: hidden;
+            opacity: 0;
+            z-index: 1;
+        }
+
+        .screen.active {
+            visibility: visible;
+            opacity: 1;
+            z-index: 2;
+        }
+
+        /* ───────────── INTRO SCREEN (vertical) ───────────── */
+        #intro-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(ellipse at center, #1a1a2e, #0b0b1a);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        #intro-screen .welcome-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.8rem;
+            padding: 2rem;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        #intro-screen .welcome-item {
+            text-align: center;
+            font-size: clamp(2.8rem, 10vw, 5.5rem);
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeUp 0.8s ease forwards;
+            padding: 0.2rem 0.5rem;
+            width: 100%;
+        }
+
+        #intro-screen .welcome-item:nth-child(1) {
+            animation-delay: 0.1s;
+            color: #f0f0f0;
+        }
+        #intro-screen .welcome-item:nth-child(2) {
+            animation-delay: 0.25s;
+            color: #ffd700;
+        }
+        #intro-screen .welcome-item:nth-child(3) {
+            animation-delay: 0.4s;
+            color: #6dd5ed;
+        }
+        #intro-screen .welcome-item:nth-child(4) {
+            animation-delay: 0.55s;
+            color: #ff6b6b;
+        }
+
+        #intro-screen .lang-label {
+            display: block;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            opacity: 0.35;
+            margin-top: 0.2rem;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes fadeUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 600px) {
+            #intro-screen .welcome-stack {
+                gap: 1.2rem;
+                padding: 1rem;
+            }
+            #intro-screen .welcome-item {
+                font-size: clamp(2.2rem, 14vw, 3.8rem);
+            }
+        }
+
+        /* ───────────── GRID SCREEN (2×2 squares) ───────────── */
+        #grid-screen {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            background: #0b0b1a;
+        }
+
+        #grid-screen .square {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(2rem, 6vw, 4.5rem);
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: lowercase;
+            transition: transform 0.3s ease, filter 0.2s ease;
+            cursor: pointer;
+            user-select: none;
+            border: 2px solid rgba(255, 255, 255, 0.12);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #grid-screen .square:hover {
+            transform: scale(1.03);
+            filter: brightness(1.12);
+            z-index: 3;
+        }
+
+        #grid-screen .square:active {
+            transform: scale(0.97);
+            filter: brightness(0.9);
+        }
+
+        #grid-screen .square:nth-child(1) {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #ffffff;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        #grid-screen .square:nth-child(2) {
+            background: linear-gradient(135deg, #f7971e, #ffd200);
+            color: #2d2d2d;
+            text-shadow: 0 2px 10px rgba(255, 255, 255, 0.2);
+        }
+
+        #grid-screen .square:nth-child(3) {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: #ffffff;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        #grid-screen .square:nth-child(4) {
+            background: linear-gradient(135deg, #cb2d3e, #ef473a);
+            color: #ffffff;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        #grid-screen .square::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        @media (max-width: 600px) {
+            #grid-screen .square {
+                font-size: clamp(1.5rem, 10vw, 3rem);
+            }
+        }
+
+        /* ───────────── SPLIT SCREEN (Telegram / Safew) ───────────── */
+        #split-screen {
+            display: flex;
+            flex-direction: column;
+            background: #0b0b1a;
+        }
+
+        #split-screen .half-link {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: flex 0.3s ease, filter 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        #split-screen .half-link.top {
+            background: linear-gradient(145deg, #0088ff, #0055cc);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+        }
+
+        #split-screen .half-link.top .label {
+            font-size: clamp(4rem, 18vw, 10rem);
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: lowercase;
+            color: #ffffff;
+            text-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        #split-screen .half-link.top .label:hover {
+            transform: scale(1.04);
+        }
+
+        #split-screen .half-link.top::after {
+            content: "✈";
+            position: absolute;
+            bottom: 1.2rem;
+            right: 2rem;
+            font-size: 1.8rem;
+            opacity: 0.25;
+            transform: rotate(20deg);
+            color: rgba(255, 255, 255, 0.5);
+            pointer-events: none;
+        }
+
+        #split-screen .half-link.bottom {
+            background: linear-gradient(145deg, #ff6b9d, #c44569);
+            border-top: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #split-screen .half-link.bottom .label {
+            font-size: clamp(4rem, 18vw, 10rem);
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: lowercase;
+            color: #4a4a4a;
+            text-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        #split-screen .half-link.bottom .label:hover {
+            transform: scale(1.04);
+        }
+
+        #split-screen .half-link.bottom::after {
+            content: "🔒";
+            position: absolute;
+            top: 1.2rem;
+            right: 2rem;
+            font-size: 1.8rem;
+            opacity: 0.3;
+            color: rgba(0, 0, 0, 0.3);
+            pointer-events: none;
+        }
+
+        #split-screen .half-link:hover {
+            filter: brightness(1.05);
+        }
+
+        #split-screen .half-link:active {
+            filter: brightness(0.95);
+        }
+
+        #split-screen .divider {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.25) 20%,
+                    rgba(255, 255, 255, 0.5) 50%,
+                    rgba(255, 255, 255, 0.25) 80%,
+                    transparent);
+            z-index: 5;
+            pointer-events: none;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        #split-screen .divider::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 6px;
+            background: radial-gradient(ellipse, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(6px);
+            animation: pulseGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% {
+                opacity: 0.4;
+                width: 80px;
+            }
+            100% {
+                opacity: 1;
+                width: 200px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            #split-screen .half-link.top::after,
+            #split-screen .half-link.bottom::after {
+                display: none;
+            }
+            #split-screen .half-link.top .label,
+            #split-screen .half-link.bottom .label {
+                font-size: clamp(3rem, 14vw, 5rem);
+            }
+        }
+
+        /* ── accessibility ── */
+        #split-screen .half-link:focus-visible,
+        #grid-screen .square:focus-visible {
+            outline: 3px solid rgba(255, 255, 255, 0.7);
+            outline-offset: -6px;
+        }
+
+        #intro-screen:focus-visible {
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ─── INTRO SCREEN (vertical welcome) ─── -->
+    <div id="intro-screen" class="screen active" tabindex="0" role="button" aria-label="Click to continue">
+        <div class="welcome-stack">
+            <div class="welcome-item">
+                Welcome
+                <span class="lang-label">English</span>
+            </div>
+            <div class="welcome-item">
+                Bienvenido
+                <span class="lang-label">Español</span>
+            </div>
+            <div class="welcome-item">
+                Bem‑vindo
+                <span class="lang-label">Português</span>
+            </div>
+            <div class="welcome-item">
+                欢迎
+                <span class="lang-label">中文</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── GRID SCREEN (2×2 squares) ─── -->
+    <div id="grid-screen" class="screen" aria-hidden="true">
+        <div class="square" tabindex="0" role="button" aria-label="Deviant Art">Deviant Art</div>
+        <div class="square" tabindex="0" role="button" aria-label="Potato Chat">Potato Chat</div>
+        <div class="square" tabindex="0" role="button" aria-label="keet io">keet io</div>
+        <div class="square" tabindex="0" role="button" aria-label="matrix">matrix</div>
+    </div>
+
+    <!-- ─── SPLIT SCREEN (Telegram / Safew) ─── -->
+    <div id="split-screen" class="screen" aria-hidden="true">
+        <div class="divider" aria-hidden="true"></div>
+
+        <a href="https://t.me/Superhelpful" target="_blank" rel="noopener noreferrer" class="half-link top" aria-label="Telegram – opens in new tab">
+            <span class="label" role="heading" aria-level="1">telegram</span>
+        </a>
+
+        <a href="https://sfw.vc/superhelpful" target="_blank" rel="noopener noreferrer" class="half-link bottom" aria-label="Safew – opens in new tab">
+            <span class="label" role="heading" aria-level="1">safew</span>
+        </a>
+    </div>
+
+    <script>
+        (function() {
+            const intro = document.getElementById('intro-screen');
+            const grid = document.getElementById('grid-screen');
+            const split = document.getElementById('split-screen');
+            const squares = document.querySelectorAll('#grid-screen .square');
+
+            function switchTo(screenId) {
+                [intro, grid, split].forEach(el => {
+                    el.classList.remove('active');
+                    el.setAttribute('aria-hidden', 'true');
+                });
+                const target = document.getElementById(screenId);
+                if (target) {
+                    target.classList.add('active');
+                    target.removeAttribute('aria-hidden');
+                    // focus the first interactive element
+                    if (screenId === 'grid-screen') {
+                        const first = target.querySelector('.square');
+                        if (first) first.focus();
+                    } else if (screenId === 'split-screen') {
+                        const first = target.querySelector('.half-link');
+                        if (first) first.focus();
+                    } else if (screenId === 'intro-screen') {
+                        target.focus();
+                    }
+                }
+            }
+
+            // Intro → Grid
+            intro.addEventListener('click', () => switchTo('grid-screen'));
+            intro.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    switchTo('grid-screen');
+                }
+            });
+
+            // Grid squares → Split
+            squares.forEach(sq => {
+                sq.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    switchTo('split-screen');
+                });
+                sq.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        switchTo('split-screen');
+                    }
+                });
+            });
+
+            // set initial aria states
+            intro.setAttribute('aria-hidden', 'false');
+            grid.setAttribute('aria-hidden', 'true');
+            split.setAttribute('aria-hidden', 'true');
+        })();
+    </script>
+
+</body>
+</html>
