@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Intro · Grid · Telegram & Safew</title>
+    <title>Intro · Grid · Actions · Telegram & Safew</title>
     <style>
         /* ── reset & base ── */
         *,
@@ -195,6 +195,77 @@
             }
         }
 
+        /* ───────────── ACTION SCREEN (3 vertical rectangles) ───────────── */
+        #action-screen {
+            display: flex;
+            flex-direction: column;
+            background: #0b0b1a;
+        }
+
+        #action-screen .action-rect {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: lowercase;
+            transition: transform 0.3s ease, filter 0.2s ease;
+            cursor: pointer;
+            user-select: none;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #action-screen .action-rect:last-child {
+            border-bottom: none;
+        }
+
+        #action-screen .action-rect:hover {
+            transform: scale(1.02);
+            filter: brightness(1.1);
+            z-index: 3;
+        }
+
+        #action-screen .action-rect:active {
+            transform: scale(0.97);
+            filter: brightness(0.9);
+        }
+
+        #action-screen .action-rect:nth-child(1) {
+            background: linear-gradient(135deg, #0f3443, #34e89e);
+            color: #ffffff;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        #action-screen .action-rect:nth-child(2) {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: #ffffff;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        #action-screen .action-rect:nth-child(3) {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: #ffffff;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        #action-screen .action-rect::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.06) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        @media (max-width: 600px) {
+            #action-screen .action-rect {
+                font-size: clamp(1.8rem, 10vw, 3.5rem);
+            }
+        }
+
         /* ───────────── SPLIT SCREEN (Telegram / Safew) ───────────── */
         #split-screen {
             display: flex;
@@ -337,7 +408,8 @@
 
         /* ── accessibility ── */
         #split-screen .half-link:focus-visible,
-        #grid-screen .square:focus-visible {
+        #grid-screen .square:focus-visible,
+        #action-screen .action-rect:focus-visible {
             outline: 3px solid rgba(255, 255, 255, 0.7);
             outline-offset: -6px;
         }
@@ -379,6 +451,13 @@
         <div class="square" tabindex="0" role="button" aria-label="matrix">matrix</div>
     </div>
 
+    <!-- ─── ACTION SCREEN (3 vertical rectangles) ─── -->
+    <div id="action-screen" class="screen" aria-hidden="true">
+        <div class="action-rect" tabindex="0" role="button" aria-label="Subscribe">subscribe</div>
+        <div class="action-rect" tabindex="0" role="button" aria-label="Buy now">buy now</div>
+        <div class="action-rect" tabindex="0" role="button" aria-label="Inquiry">inquiry</div>
+    </div>
+
     <!-- ─── SPLIT SCREEN (Telegram / Safew) ─── -->
     <div id="split-screen" class="screen" aria-hidden="true">
         <div class="divider" aria-hidden="true"></div>
@@ -396,11 +475,13 @@
         (function() {
             const intro = document.getElementById('intro-screen');
             const grid = document.getElementById('grid-screen');
+            const action = document.getElementById('action-screen');
             const split = document.getElementById('split-screen');
             const squares = document.querySelectorAll('#grid-screen .square');
+            const rects = document.querySelectorAll('#action-screen .action-rect');
 
             function switchTo(screenId) {
-                [intro, grid, split].forEach(el => {
+                [intro, grid, action, split].forEach(el => {
                     el.classList.remove('active');
                     el.setAttribute('aria-hidden', 'true');
                 });
@@ -411,6 +492,9 @@
                     // focus the first interactive element
                     if (screenId === 'grid-screen') {
                         const first = target.querySelector('.square');
+                        if (first) first.focus();
+                    } else if (screenId === 'action-screen') {
+                        const first = target.querySelector('.action-rect');
                         if (first) first.focus();
                     } else if (screenId === 'split-screen') {
                         const first = target.querySelector('.half-link');
@@ -430,13 +514,27 @@
                 }
             });
 
-            // Grid squares → Split
+            // Grid squares → Action
             squares.forEach(sq => {
                 sq.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    switchTo('split-screen');
+                    switchTo('action-screen');
                 });
                 sq.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        switchTo('action-screen');
+                    }
+                });
+            });
+
+            // Action rectangles → Split
+            rects.forEach(rect => {
+                rect.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    switchTo('split-screen');
+                });
+                rect.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
                         switchTo('split-screen');
@@ -447,6 +545,7 @@
             // set initial aria states
             intro.setAttribute('aria-hidden', 'false');
             grid.setAttribute('aria-hidden', 'true');
+            action.setAttribute('aria-hidden', 'true');
             split.setAttribute('aria-hidden', 'true');
         })();
     </script>
